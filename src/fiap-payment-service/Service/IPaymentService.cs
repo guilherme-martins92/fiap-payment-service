@@ -9,6 +9,6 @@ namespace fiap_payment_service.Service
         Task<List<Payment>> GetAllPaymentsAsync();
         Task<Payment> UpdatePaymentAsync(Guid id, CreatePaymentDto updatePaymentDto);
         Task<bool> DeletePaymentAsync(Guid id);
-        Task<Payment> ProcessPaymentAsync(Guid PaymentCode);
+        Task<Payment> ProcessPaymentAsync(Guid id);
     }
 }

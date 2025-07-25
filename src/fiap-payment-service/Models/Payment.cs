@@ -1,10 +1,12 @@
-﻿namespace fiap_payment_service.Models
+﻿using Amazon.DynamoDBv2.DataModel;
+
+namespace fiap_payment_service.Models
 {
+    [DynamoDBTable("Payments")]
     public class Payment
     {
         public Guid Id { get; set; }
         public required Guid CustomerId { get; set; }
-        public required Guid PaymentCode { get; set; }
         public required string Description { get; set; }
         public required decimal Amount { get; set; }
         public DateTime PaymentDate { get; set; }

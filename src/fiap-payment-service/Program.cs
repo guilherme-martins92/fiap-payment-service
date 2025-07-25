@@ -1,4 +1,7 @@
+using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.DataModel;
 using fiap_payment_service.Dtos;
+using fiap_payment_service.Repositories;
 using fiap_payment_service.Service;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,6 +13,13 @@ builder.Services.AddSwaggerGen();
 
 // Add services to the container.
 builder.Services.AddScoped<IPaymentService, PaymentService>();
+builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
+builder.Services.AddSingleton<IDynamoDBContext, DynamoDBContext>();
+
+builder.Services.AddSingleton<IAmazonDynamoDB>(sp =>
+{
+    return new AmazonDynamoDBClient();
+});
 
 var app = builder.Build();
 
@@ -36,6 +46,23 @@ app.MapGet("/payment/{id:guid}", async (Guid id, IPaymentService paymentService)
     return Results.Ok(result);
 })
 .WithName("GetPayment")
+.WithOpenApi();
+
+app.MapGet("/payments", async (IPaymentService paymentService) =>
+{
+    var result = await paymentService.GetAllPaymentsAsync();
+    return Results.Ok(result);
+})
+ .WithName("GetAllPayments")
+ .WithOpenApi();
+
+app.MapPut("/payment/process/{id:guid}", async (Guid id, IPaymentService paymentService) =>
+{
+    var result = await paymentService.ProcessPaymentAsync(id);
+    return Results.Ok(result);
+})
+.WithName("ProcessPayment")
+.WithDescription("Processa o pagamento através do código.")
 .WithOpenApi();
 
 await app.RunAsync();
