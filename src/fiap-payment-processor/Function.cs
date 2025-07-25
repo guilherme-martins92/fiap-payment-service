@@ -1,3 +1,5 @@
+using Amazon.EventBridge;
+using Amazon.EventBridge.Model;
 using Amazon.Lambda.Core;
 using Amazon.Lambda.SQSEvents;
 using fiap_payment_processor.Models;
@@ -12,8 +14,7 @@ namespace fiap_payment_processor;
 [ExcludeFromCodeCoverage]
 public class Function
 {
-    private readonly HttpClient _httpClient = new HttpClient();
-    private readonly string _baseAddres = Environment.GetEnvironmentVariable("ORDER_API_URL") ?? "http://localhost:5000/api";
+    private const string EventBusName = "saga-event-bus";
 
     public async Task FunctionHandler(SQSEvent sqsEvent, ILambdaContext context)
     {
@@ -45,8 +46,8 @@ public class Function
         string teste = string.Empty;
         try
         {
-            teste = await UpdatePaymentStatusAsync(paymentRequest.OrderId, "PAGO");
-            return "Pagamento processado com sucesso!" + teste;
+            await PublishPaymentMadeAsync(paymentRequest.OrderId);
+            return $"Pagamento do pedido {paymentRequest.OrderId} processado com sucesso!";
         }
         catch (Exception ex)
         {
@@ -54,19 +55,36 @@ public class Function
         }
     }
 
-    public async Task<string> UpdatePaymentStatusAsync(Guid orderId, string status)
+    public async Task PublishPaymentMadeAsync(Guid orderId)
     {
-        string endpoint = _baseAddres + $"/orders/{orderId}?status={status}";
+        var client = new AmazonEventBridgeClient();
 
-        var response = await _httpClient.PutAsync(endpoint, null);
+        var detail = JsonSerializer.Serialize(new
+        {
+            EventType = "PagamentoRealizado",
+            OrderId = orderId,
+            Timestamp = DateTime.UtcNow
+        });
 
-        if (response.IsSuccessStatusCode)
+        var request = new PutEventsRequest
         {
-            return "Status de pagamento atualizado com sucesso.";
-        }
-        else
+            Entries = new List<PutEventsRequestEntry>
+            {
+                new()
+                {
+                    Detail = detail,
+                    DetailType = "PagamentoRealizado",
+                    Source = "ms.payment",
+                    EventBusName = EventBusName
+                }
+            }
+        };
+
+        var response = await client.PutEventsAsync(request);
+
+        if (response.FailedEntryCount > 0)
         {
-            return $"Falha ao tentar atualizar o status de pagamento: {response.ReasonPhrase}";
+            throw new InvalidOperationException("Falha ao publicar evento PagamentoRealizado no EventBridge.");
         }
     }
 }
