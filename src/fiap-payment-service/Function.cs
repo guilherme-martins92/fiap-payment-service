@@ -2,14 +2,14 @@ using Amazon.EventBridge;
 using Amazon.EventBridge.Model;
 using Amazon.Lambda.Core;
 using Amazon.Lambda.SQSEvents;
-using fiap_payment_processor.Models;
+using fiap_payment_service.Models;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
 
-namespace fiap_payment_processor;
+namespace fiap_payment_service;
 
 [ExcludeFromCodeCoverage]
 public class Function

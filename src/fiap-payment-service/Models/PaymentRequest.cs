@@ -1,4 +1,4 @@
-﻿namespace fiap_payment_processor.Models
+﻿namespace fiap_payment_service.Models
 {
     public class PaymentRequest
     {
