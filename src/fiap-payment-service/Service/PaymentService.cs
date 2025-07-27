@@ -23,7 +23,8 @@ namespace fiap_payment_service.Service
                 var payment = new Payment
                 {
                     Id = Guid.NewGuid(),
-                    CustomerId = createPaymentDto.CustomerId,                    
+                    OrderId = createPaymentDto.OrderId,    
+                    VehicleId = createPaymentDto.VehicleId,
                     Description = createPaymentDto.Description,
                     Amount = createPaymentDto.Amount,
                     Status = PaymentStatus.Pending,

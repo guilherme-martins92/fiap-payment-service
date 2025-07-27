@@ -6,7 +6,8 @@ namespace fiap_payment_service.Models
     public class Payment
     {
         public Guid Id { get; set; }
-        public required Guid CustomerId { get; set; }
+        public required Guid OrderId { get; set; }
+        public required Guid VehicleId { get; set; }
         public required string Description { get; set; }
         public required decimal Amount { get; set; }
         public DateTime PaymentDate { get; set; }
