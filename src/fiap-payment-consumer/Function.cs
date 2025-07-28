@@ -3,7 +3,6 @@ using Amazon.Lambda.SQSEvents;
 using fiap_payment_consumer.Models;
 using System.Text;
 using System.Text.Json;
-using static System.Net.WebRequestMethods;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]

@@ -17,11 +17,11 @@ namespace fiap_payment_service.Infrastructure.EventBridge
             _eventBridge = eventBridge;
         }
 
-        public async Task PublishPaymentCreatedEventAsync(Guid orderId, Guid paymentId, string status)
+        public async Task PublishPaymentStatusEventAsync(Guid orderId, Guid paymentId, string status)
         {
             var detail = JsonSerializer.Serialize(new
             {
-                EventType = "PagamentoCriado",
+                EventType = "PagamentoStatus",
                 OrderId = orderId,
                 Status = status,
                 PaymentId = paymentId,
@@ -35,7 +35,7 @@ namespace fiap_payment_service.Infrastructure.EventBridge
                 new()
                 {
                     Detail = detail,
-                    DetailType = "PagamentoCriado",
+                    DetailType = "PagamentoStatus",
                     Source = "ms-pagamentos",
                     EventBusName = EventBusName
                 }

@@ -2,6 +2,6 @@
 {
     public interface IEventPublisher
     {
-        Task PublishPaymentCreatedEventAsync(Guid orderId, Guid paymentId, string status);
+        Task PublishPaymentStatusEventAsync(Guid orderId, Guid paymentId, string status);       
     }
 }

@@ -36,7 +36,7 @@ namespace fiap_payment_service.Service
                 };
 
                 await _paymentRepository.CreatePaymentAsync(payment);
-                await _eventPublisher.PublishPaymentCreatedEventAsync(payment.OrderId, payment.Id, PaymentStatus.Pending);
+                await _eventPublisher.PublishPaymentStatusEventAsync(payment.OrderId, payment.Id, PaymentStatus.Pending);
 
                 _logger.LogInformation("Payment created successfully with ID: {PaymentId}", payment.Id);
                 return payment;
@@ -111,14 +111,14 @@ namespace fiap_payment_service.Service
                 {
                     throw new InvalidOperationException($"Payment with ID: {id} not found.");
                 }
-                // Simulate payment processing logic
-                await Task.Delay(100); // Simulating async payment processing
+              
+                await Task.Delay(100);
                 payment.Status = PaymentStatus.Completed;
                 payment.UpdateAt = DateTime.UtcNow;
                 await _paymentRepository.UpdatePaymentAsync(payment);
+                await _eventPublisher.PublishPaymentStatusEventAsync(payment.OrderId, payment.Id, PaymentStatus.Completed);
                 _logger.LogInformation("Payment processed successfully with ID: {PaymentId}", payment.Id);
                 return payment;
-
             }
             catch (Exception ex)
             {
