@@ -1,6 +1,8 @@
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
+using Amazon.EventBridge;
 using fiap_payment_service.Dtos;
+using fiap_payment_service.Infrastructure.EventBridge;
 using fiap_payment_service.Repositories;
 using fiap_payment_service.Service;
 
@@ -21,10 +23,16 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 builder.Services.AddSingleton<IDynamoDBContext, DynamoDBContext>();
+builder.Services.AddScoped<IEventPublisher, EventBridgePublisher>();
 
 builder.Services.AddSingleton<IAmazonDynamoDB>(sp =>
 {
     return new AmazonDynamoDBClient();
+});
+
+builder.Services.AddSingleton<IAmazonEventBridge>(sp =>
+{
+    return new AmazonEventBridgeClient();
 });
 
 var app = builder.Build();
