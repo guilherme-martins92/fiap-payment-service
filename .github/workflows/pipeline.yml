@@ -1,0 +1,69 @@
+name: .NET CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  Build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v3
+
+      - name: Configurar .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restaurar dependências
+        run: dotnet restore src/fiap-payment-service.sln
+
+      - name: Build da aplicação
+        run: dotnet build src/fiap-payment-service.sln --configuration Release
+        
+  Tests:
+    runs-on: ubuntu-latest
+    needs: Build
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v3
+
+      - name: Configurar .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restaurar dependências
+        run: dotnet restore src/fiap-payment-service-tests/fiap-payment-service-tests.csproj
+
+      - name: Executar testes com cobertura
+        run: dotnet test src/fiap-payment-service-tests/fiap-payment-service-tests.csproj --configuration Release --no-restore      
+
+  Deploy:
+    if: github.ref == 'refs/heads/main'
+    needs: Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v3
+
+      - name: Instalar AWS SAM CLI
+        run: pip install aws-sam-cli
+
+      - name: Configurar credenciais AWS
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Build SAM Application
+        run: sam build
+
+      - name: Deploy para AWS
+        run: sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --stack-name fiap-payment-service
